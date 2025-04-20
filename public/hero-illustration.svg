@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background shapes -->
+  <path d="M600 100C680 100 750 170 750 250C750 330 680 400 600 400C520 400 450 330 450 250C450 170 520 100 600 100Z" fill="#F3E8FF" fillOpacity="0.3"/>
+  <path d="M200 300C280 300 350 370 350 450C350 530 280 600 200 600C120 600 50 530 50 450C50 370 120 300 200 300Z" fill="#E9D5FF" fillOpacity="0.4"/>
+  
+  <!-- Main PDF document -->
+  <rect x="150" y="100" width="500" height="400" rx="20" fill="white" stroke="#E2E8F0" strokeWidth="2"/>
+  
+  <!-- PDF toolbar -->
+  <rect x="150" y="100" width="500" height="60" rx="20" fill="#F8FAFC"/>
+  <circle cx="190" cy="130" r="10" fill="#CBD5E1"/>
+  <circle cx="220" cy="130" r="10" fill="#CBD5E1"/>
+  <circle cx="250" cy="130" r="10" fill="#CBD5E1"/>
+  
+  <!-- Document content -->
+  <rect x="180" y="190" width="440" height="20" rx="4" fill="#EDF2F7"/>
+  <rect x="180" y="230" width="380" height="20" rx="4" fill="#EDF2F7"/>
+  <rect x="180" y="270" width="420" height="20" rx="4" fill="#EDF2F7"/>
+  
+  <!-- Floating elements -->
+  <rect x="50" y="150" width="80" height="80" rx="10" fill="#9F7AEA" fillOpacity="0.2"/>
+  <rect x="670" y="250" width="80" height="80" rx="10" fill="#805AD5" fillOpacity="0.2"/>
+  <rect x="100" y="400" width="60" height="60" rx="8" fill="#B794F4" fillOpacity="0.2"/>
+  
+  <!-- Icons -->
+  <path d="M70 170H110M70 190H110M70 210H90" stroke="#805AD5" strokeWidth="4" strokeLinecap="round"/>
+  <path d="M690 270H730M690 290H730M690 310H710" stroke="#805AD5" strokeWidth="4" strokeLinecap="round"/>
+  <path d="M120 420H140M120 440H140" stroke="#805AD5" strokeWidth="4" strokeLinecap="round"/>
+</svg> 

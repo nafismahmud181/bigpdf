@@ -1,47 +1,57 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
   Box,
-  Heading,
   Button,
+  Container,
+  Heading,
   VStack,
-  useToast,
   Text,
+  useToast,
   Progress,
-  SimpleGrid,
-  Card,
-  CardBody,
-  IconButton,
+  HStack,
+  Icon,
+  List,
+  ListItem,
+  ListIcon,
   Flex,
+  IconButton,
 } from '@chakra-ui/react';
 import { PDFService } from '../services/pdfService';
-import { Document, Page } from 'react-pdf';
+import { useDropzone } from 'react-dropzone';
 import { DeleteIcon } from '@chakra-ui/icons';
+import { FiFileText, FiUpload } from 'react-icons/fi';
+import { BsCheckCircleFill } from 'react-icons/bs';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
 const MergePDF = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const toast = useToast();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
-      setFiles(newFiles);
-      
-      // Create preview URLs for the new files
-      const newPreviewUrls = newFiles.map(file => URL.createObjectURL(file));
-      setPreviewUrls(prev => [...prev, ...newPreviewUrls]);
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    const pdfFiles = acceptedFiles.filter(file => file.type === 'application/pdf');
+    if (pdfFiles.length !== acceptedFiles.length) {
+      toast({
+        title: 'Invalid file type',
+        description: 'Please select only PDF files',
+        status: 'error',
+        duration: 3000,
+      });
     }
-  };
+    setFiles(prev => [...prev, ...pdfFiles]);
+  }, [toast]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'application/pdf': ['.pdf']
+    },
+    multiple: true
+  });
 
   const removeFile = (index: number) => {
     setFiles(prev => prev.filter((_, i) => i !== index));
-    setPreviewUrls(prev => {
-      URL.revokeObjectURL(prev[index]);
-      return prev.filter((_, i) => i !== index);
-    });
   };
 
   const handleMerge = async () => {
@@ -88,75 +98,122 @@ const MergePDF = () => {
     }
   };
 
+  const features = [
+    'Merge multiple PDFs into a single file in seconds',
+    'Works online on any device and operating system',
+    'Trusted by 1.7 billion people since 2013'
+  ];
+
   return (
-    <Box>
-      <Heading mb={6}>Merge PDFs</Heading>
-      <VStack spacing={6} align="stretch">
-        <input
-          type="file"
-          accept=".pdf"
-          multiple
-          onChange={handleFileChange}
-          style={{ display: 'none' }}
-          id="file-upload"
-        />
-        <Button
-          as="label"
-          htmlFor="file-upload"
-          colorScheme="blue"
-          variant="outline"
+    <Container maxW="container.xl" py={8}>
+      <VStack spacing={8} align="stretch">
+        <Box>
+          <Heading size="xl" mb={4}>Merge PDF</Heading>
+          <Text color="gray.600" fontSize="lg">
+            Quickly and easily combine multiple PDF files into a single, professional document
+            online. Our free PDF merger is user-friendly, fast, and doesn't add any watermarks to
+            your documents.
+          </Text>
+        </Box>
+
+        {/* Drop Zone */}
+        <Box
+          {...getRootProps()}
+          bg={isDragActive ? 'purple.600' : 'purple.500'}
+          borderRadius="xl"
+          p={10}
+          textAlign="center"
+          position="relative"
           cursor="pointer"
+          borderWidth={2}
+          borderStyle="dashed"
+          borderColor={isDragActive ? 'white' : 'whiteAlpha.500'}
+          transition="all 0.2s"
+          _hover={{ bg: 'purple.600', borderColor: 'white' }}
         >
-          Select PDF Files
-        </Button>
-        
+          <input {...getInputProps()} />
+          <VStack spacing={4}>
+            <Icon 
+              as={isDragActive ? FiUpload : FiFileText} 
+              w={16} 
+              h={16} 
+              color="white"
+              transition="transform 0.2s"
+              transform={isDragActive ? 'scale(1.1)' : 'scale(1)'}
+            />
+            <Button
+              colorScheme="white"
+              variant="outline"
+              size="lg"
+              color="white"
+              _hover={{ bg: 'whiteAlpha.200' }}
+            >
+              CHOOSE FILES
+            </Button>
+            <Text color="white" fontSize="sm">
+              {isDragActive ? 'Drop your PDF files here' : 'or drop files here'}
+            </Text>
+          </VStack>
+        </Box>
+
+        {/* Feature List */}
+        <List spacing={3}>
+          {features.map((feature, index) => (
+            <ListItem key={index} display="flex" alignItems="center">
+              <ListIcon as={BsCheckCircleFill} color="green.500" />
+              <Text>{feature}</Text>
+            </ListItem>
+          ))}
+        </List>
+
+        {/* Selected Files */}
         {files.length > 0 && (
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
-            {files.map((file, index) => (
-              <Card key={index} position="relative">
-                <CardBody p={2}>
-                  <Flex direction="column" align="center">
-                    <Box position="relative" width="100%" height="200px" overflow="hidden">
-                      <Document file={previewUrls[index]}>
-                        <Page 
-                          pageNumber={1} 
-                          width={200}
-                          renderTextLayer={false}
-                          renderAnnotationLayer={false}
-                        />
-                      </Document>
-                    </Box>
-                    <Text mt={2} fontSize="sm" noOfLines={1}>
-                      {file.name}
-                    </Text>
-                    <IconButton
-                      aria-label="Remove file"
-                      icon={<DeleteIcon />}
-                      size="sm"
-                      colorScheme="red"
-                      variant="ghost"
-                      position="absolute"
-                      top={2}
-                      right={2}
-                      onClick={() => removeFile(index)}
-                    />
-                  </Flex>
-                </CardBody>
-              </Card>
-            ))}
-          </SimpleGrid>
+          <VStack spacing={4} align="stretch">
+            <Text fontWeight="bold" fontSize="lg">
+              Selected Files ({files.length})
+            </Text>
+            <VStack spacing={2} align="stretch">
+              {files.map((file, index) => (
+                <Flex
+                  key={index}
+                  p={4}
+                  bg="gray.50"
+                  borderRadius="md"
+                  alignItems="center"
+                  justifyContent="space-between"
+                >
+                  <HStack spacing={4}>
+                    <Icon as={FiFileText} w={6} h={6} color="purple.500" />
+                    <Text>{file.name}</Text>
+                  </HStack>
+                  <IconButton
+                    aria-label="Remove file"
+                    icon={<DeleteIcon />}
+                    size="sm"
+                    colorScheme="red"
+                    variant="ghost"
+                    onClick={() => removeFile(index)}
+                  />
+                </Flex>
+              ))}
+            </VStack>
+          </VStack>
         )}
 
         {isProcessing && <Progress size="xs" isIndeterminate />}
+        
         <Button
-          colorScheme="blue"
+          colorScheme="purple"
+          size="lg"
           onClick={handleMerge}
           isDisabled={files.length < 2 || isProcessing}
+          isLoading={isProcessing}
+          loadingText="Merging PDFs..."
         >
           Merge PDFs
         </Button>
       </VStack>
-    </Box>
+    </Container>
   );
 };
 
