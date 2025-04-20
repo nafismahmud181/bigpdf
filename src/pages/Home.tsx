@@ -116,7 +116,7 @@ const Home = () => {
       icon: <FaFileExcel />,
       title: 'Split PDF',
       description: 'Split your PDF into multiple files',
-      to: '/split-pdf',
+      to: '/split',
     },
   ];
 
