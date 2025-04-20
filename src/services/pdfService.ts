@@ -53,11 +53,43 @@ export class PDFService {
     return splitPdfs;
   }
 
-  static async compressPDF(file: File): Promise<Uint8Array> {
-    const arrayBuffer = await file.arrayBuffer();
-    const pdfDoc = await PDFDocument.load(arrayBuffer);
-    // Add compression logic here
-    return await pdfDoc.save();
+  static async compressPDF(file: File, quality: 'low' | 'medium' | 'high'): Promise<Uint8Array> {
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdfDoc = await PDFDocument.load(arrayBuffer);
+      
+      // Quality settings
+      const compressionSettings = {
+        low: { imageQuality: 0.3, imageScale: 0.5 },
+        medium: { imageQuality: 0.5, imageScale: 0.75 },
+        high: { imageQuality: 0.7, imageScale: 0.9 }
+      };
+      
+      const { imageQuality, imageScale } = compressionSettings[quality];
+      
+      // Compress each page
+      const pages = pdfDoc.getPages();
+      for (const page of pages) {
+        // Get page dimensions
+        const { width, height } = page.getSize();
+        
+        // Scale down page size
+        page.setSize(width * imageScale, height * imageScale);
+      }
+      
+      // Set compression options
+      const compressedPdf = await pdfDoc.save({
+        useObjectStreams: true,
+        addDefaultPage: false,
+        objectsPerTick: 50,
+        updateFieldAppearances: false
+      });
+      
+      return compressedPdf;
+    } catch (error) {
+      console.error('Error compressing PDF:', error);
+      throw new Error('Failed to compress PDF file');
+    }
   }
 
   static async getPageCount(file: File): Promise<number> {
